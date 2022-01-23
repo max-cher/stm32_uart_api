@@ -9,7 +9,7 @@ CP      = arm-none-eabi-objcopy
 OD      = arm-none-eabi-objdump
 OBJCOPY=arm-none-eabi-objcopy
 
-CFLAGS  =  -I./ -c -fno-common -Os -mcpu=cortex-m3 -mthumb
+CFLAGS  =  -I./ -c -fno-common -Os -mcpu=cortex-m3 -mthumb -std=c99
 LFLAGS  = -Tstm32.ld -nostartfiles
 CPFLAGS = -Obinary
 ODFLAGS = -S
