@@ -16,14 +16,12 @@ enum stop_bit{
 
 
 
-
-
 // 2. Setting the baud rate;
 void set_uart_baud_rate(USART_TypeDef * uart, u32 baudrate) {
     if(uart == USART1) {    // PCLK2 max 72 MHz
-        uart->BRR = (8000000/baudrate);  //(72000000/baudrate);
+        uart->BRR = (24000000/baudrate);  //(72000000/baudrate);
     } else {                // PCLK1 max 36 MHz
-        uart->BRR = (8000000/baudrate); //(36000000/baudrate);
+        uart->BRR = (12000000/baudrate); //(36000000/baudrate);
     }
     return;
 }
@@ -59,20 +57,17 @@ void set_uart_stop(USART_TypeDef * uart, int stop) {
 }
 
 
-// 5. Setting the callback function for the receiver / transmitter;
-void set_callback() {
-    
-    return;
-}
+
 
 // 6. Data array transfer function. Data array will be sent by the transmitter;
-void uart_send_array(USART_TypeDef * uart, u8 *data, u8 num_of) {
+void uart_send_array(USART_TypeDef * uart, char *data, char num_of) {
     for(uint32_t i = 0; i < num_of; i++) {
         while ((uart->SR & USART_SR_TXE) == 0) {}
         uart->DR = data[i];
     }
     return;
 }
+
 
 void uart_send_byte(USART_TypeDef * uart, char data) {
     while ((uart->SR & USART_SR_TXE) == 0) {}
@@ -87,7 +82,7 @@ char uart_receive_byte(USART_TypeDef * uart) {
     return data;
 }
 
-void uart_interrupt_enable(USART_TypeDef * uart) {
+void uart_rx_interrupt_enable(USART_TypeDef * uart) {
     uart->CR1 |= USART_CR1_RXNEIE;
     //uart->CR1 |= USART_CR1_TXEIE;
     
@@ -97,6 +92,20 @@ void uart_interrupt_enable(USART_TypeDef * uart) {
         NVIC_EnableIRQ (USART2_IRQn);
     } else if(uart == USART2) {
         NVIC_EnableIRQ (USART3_IRQn);
+    }
+    return;
+}
+
+void uart_tx_interrupt_enable(USART_TypeDef * uart) {
+    //uart->CR1 |= USART_CR1_RXNEIE;
+    //uart->CR1 |= USART_CR1_TXEIE;
+    
+    if(uart == USART1) { 
+    //    NVIC_EnableIRQ (USART1_IRQn);
+    } else if(uart == USART2) {
+    //    NVIC_EnableIRQ (USART2_IRQn);
+    } else if(uart == USART2) {
+    //    NVIC_EnableIRQ (USART3_IRQn);
     }
     return;
 }
@@ -176,16 +185,93 @@ void init_uart(USART_TypeDef * uart) {
         USART3->CR2 = 0;
         USART3->CR3 = 0;
         
-    }// else if(uart == USART4) {                       // PCLK1 max 36 MHz
-    //    RCC->APB1ENR |= RCC_APB1ENR_USART4EN;
-    //} else if(uart == USART5) {                       // PCLK1 max 36 MHz
-    //    RCC->APB1ENR |= RCC_APB1ENR_USART5EN;
-    //}
-    
-    
-    
-    
+    } else if(uart == UART4) {                       // PCLK1 max 36 MHz
+        RCC->APB1ENR |= RCC_APB1ENR_UART4EN;
+    } else if(uart == UART5) {                       // PCLK1 max 36 MHz
+        RCC->APB1ENR |= RCC_APB1ENR_UART5EN;
+    }
     
     return;
 }
+
+
+// callback function protorypes
+void (*handle_byte_uart1_rx)(char byte);
+void (*handle_byte_uart2_rx)(char byte);
+void (*handle_byte_uart3_rx)(char byte);
+
+void (*handle_byte_uart1_tx)(void);
+void (*handle_byte_uart2_tx)(void);
+void (*handle_byte_uart3_tx)(void);
+
+
+// 5. Setting the callback function for the receiver / transmitter;
+void uart_set_callback_rx(USART_TypeDef * uart, void(uart_byte_handler)(char byte)) {
+    if(uart == USART1) {
+        handle_byte_uart1_rx = uart_byte_handler;
+    } else if(uart == USART2) {
+        handle_byte_uart2_rx = uart_byte_handler;
+    } else if(uart == USART3) {
+        handle_byte_uart3_rx = uart_byte_handler;
+    }
+    uart_rx_interrupt_enable(uart);
+    return;
+}
+
+void uart_set_callback_tx(USART_TypeDef * uart, void(uart_byte_handler)(void)) {
+    if(uart == USART1) {
+        handle_byte_uart1_tx = uart_byte_handler;
+    } else if(uart == USART2) {
+        handle_byte_uart2_tx = uart_byte_handler;
+    } else if(uart == USART3) {
+        handle_byte_uart3_tx = uart_byte_handler;
+    }
+    uart_rx_interrupt_enable(uart);
+    return;
+}
+
+
+// Interrupt handlers
+
+void USART1_IRQHandler(void) {
+    
+    GPIOC->ODR = 0x00000200;
+    char b;
+    if((USART1->CR1 & USART_CR1_RXNEIE) && (USART1->SR & USART_SR_RXNE)) {
+        b = uart_receive_byte(USART1);
+        handle_byte_uart1_rx(b);
+    }
+    if((USART1->CR1 & USART_CR1_TXEIE) && (USART1->SR & USART_SR_TXE)) {
+        
+    }
+    
+    
+}
+
+void USART2_IRQHandler(void) {
+    GPIOC->ODR = 0x00000100;
+    char b;
+    if((USART2->CR1 & USART_CR1_RXNEIE) && (USART2->SR & USART_SR_RXNE)) {
+        b = uart_receive_byte(USART2);
+        handle_byte_uart2_rx(b);
+    }
+    if((USART2->CR1 & USART_CR1_TXEIE) && (USART2->SR & USART_SR_TXE)) {
+        
+    }
+}
+
+void USART3_IRQHandler(void) {
+    GPIOC->ODR = 0x00000100;
+    char b;
+    if((USART3->CR1 & USART_CR1_RXNEIE) && (USART3->SR & USART_SR_RXNE)) {
+        b = uart_receive_byte(USART3);
+        handle_byte_uart3_rx(b);
+    }
+    if((USART3->CR1 & USART_CR1_TXEIE) && (USART3->SR & USART_SR_TXE)) {
+        
+    }
+}
+
+
+
 

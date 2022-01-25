@@ -1,11 +1,11 @@
 /**
   ******************************************************************************
-  * @file    Project/STM32F10x_StdPeriph_Template/stm32f10x_it.c 
+  * @file    Project/STM32F10x_StdPeriph_Template/stm32f10x_it.c
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    08-April-2011
   * @brief   Main Interrupt Service Routines.
-  *          This file provides template for all exceptions handler and 
+  *          This file provides template for all exceptions handler and
   *          peripherals interrupt service routine.
   ******************************************************************************
   * @attention
@@ -24,6 +24,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
 
+
 /** @addtogroup STM32F10x_StdPeriph_Template
   * @{
   */
@@ -38,7 +39,38 @@
 /******************************************************************************/
 /*            Cortex-M3 Processor Exceptions Handlers                         */
 /******************************************************************************/
+/**
+  * @brief  This function handles USART1
+  * @param  None
+  * @retval None
+  */
+/*
+void USART1_IRQHandler(void) {
+    char b;
+    GPIOC->ODR = 0x00000200;
+    b = uart_receive_byte(USART1);
+    uart_send_byte(USART2, b);
+    //if(USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET) {
+        
+        //b =  USART_ReceiveData(USART1);
+        //send_byte(b);
+    //}
+}
 
+void USART2_IRQHandler(void) {
+    char b;
+    GPIOC->ODR = 0x00000100;
+    b = uart_receive_byte(USART2);
+    uart_send_byte(USART1, b);
+    //if(USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET) {
+        
+        
+        
+        //b =  USART_ReceiveData(USART1);
+        //send_byte(b);
+    //}
+}
+//*/
 /**
   * @brief  This function handles NMI exception.
   * @param  None
@@ -55,10 +87,9 @@ void NMI_Handler(void)
   */
 void HardFault_Handler(void)
 {
-  /* Go to infinite loop when Hard Fault exception occurs */
-  while (1)
-  {
-  }
+	/* Go to infinite loop when Hard Fault exception occurs */
+	while (1) {
+	}
 }
 
 /**
@@ -68,10 +99,9 @@ void HardFault_Handler(void)
   */
 void MemManage_Handler(void)
 {
-  /* Go to infinite loop when Memory Manage exception occurs */
-  while (1)
-  {
-  }
+	/* Go to infinite loop when Memory Manage exception occurs */
+	while (1) {
+	}
 }
 
 /**
@@ -81,10 +111,9 @@ void MemManage_Handler(void)
   */
 void BusFault_Handler(void)
 {
-  /* Go to infinite loop when Bus Fault exception occurs */
-  while (1)
-  {
-  }
+	/* Go to infinite loop when Bus Fault exception occurs */
+	while (1) {
+	}
 }
 
 /**
@@ -94,10 +123,9 @@ void BusFault_Handler(void)
   */
 void UsageFault_Handler(void)
 {
-  /* Go to infinite loop when Usage Fault exception occurs */
-  while (1)
-  {
-  }
+	/* Go to infinite loop when Usage Fault exception occurs */
+	while (1) {
+	}
 }
 
 /**
@@ -154,22 +182,7 @@ void SysTick_Handler(void)
 
 /**
   * @}
-  */ 
-
-
-void USART1_IRQHandler(void) {
-    GPIOC->ODR = 0x00000300;
-    char byte = USART1->DR;
-    USART2->DR = byte;
-    USART1->SR &= ~USART_SR_RXNE;
-}
-
-void USART2_IRQHandler(void) {
-    GPIOC->ODR = 0x00000300;
-    char byte = USART2->DR;
-    USART1->DR = byte;
-    USART2->SR &= ~USART_SR_RXNE;
-}
+  */
 
 
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

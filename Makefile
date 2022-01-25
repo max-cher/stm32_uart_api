@@ -1,59 +1,85 @@
-#CC      = arm-elf-gcc
-#LD      = arm-elf-ld -v
-#CP      = arm-elf-objcopy
-#OD      = arm-elf-objdump
+#====================================================================#
+#Output files
+EXECUTABLE=stm32_executable.elf
+BIN_IMAGE=stm32_bin_image.bin
 
-#STARTUP = startup_stm32f10x.s 
-STARTUP = STM32F10x.s 
-#ASMSRC = $(STARTUP)
-
-
-
-CC		= arm-none-eabi-gcc
-LD      = arm-none-eabi-ld -v
-CP      = arm-none-eabi-objcopy
-OD      = arm-none-eabi-objdump
+#======================================================================#
+#Cross Compiler
+CC=arm-none-eabi-gcc
 OBJCOPY=arm-none-eabi-objcopy
 
-#AS      = arm-none-eabi-as
+#======================================================================#
+#Flags
+CFLAGS=-Wall -g -mlittle-endian -mthumb -nostdlib -ffreestanding -std=c99
+CFLAGS+=-mcpu=cortex-m3
+CFLAGS+=-D USE_STDPERIPH_DRIVER
+CFLAGS+=-I./
+CFLAGS+=-D STM32F10X_CL
+#CFLAGS+=-D STM32F10X_HD
 
-CFLAGS  =  -I./ -c -fno-common -Os -mcpu=cortex-m3 -mthumb -std=c99
-LFLAGS  = -Tstm32.ld -nostartfiles
-CPFLAGS = -Obinary
-ODFLAGS = -S
-#AFLAGS  = -ahls -mapcs-32
 
-SRCS=$(PROJ_NAME).c
+#stm32-flash
+CFLAGS+=-Wl,-T,stm32_flash.ld
 
-PROJ_NAME=main
+#======================================================================#
+#Libraries
 
-all: $(PROJ_NAME).bin
+#Stm32 libraries
+ST_LIB=./lib/STM32F10x_StdPeriph_Driver
 
+#CMSIS libraries
+CFLAGS+=-I./lib/CMSIS/CM3/CoreSupport
+
+#StdPeriph includes
+CFLAGS+=-I$(ST_LIB)/inc
+CFLAGS+=-I./lib/CMSIS/CM3/DeviceSupport/ST/STM32F10x/
+#======================================================================#
+#setup system clock
+SRC=./system_stm32f10x.c
+#StdPeriph
+SRC+=$(ST_LIB)/src/misc.c \
+	$(ST_LIB)/src/stm32f10x_rcc.c \
+	$(ST_LIB)/src/stm32f10x_gpio.c \
+	$(ST_LIB)/src/stm32f10x_usart.c 
+
+#Major programs
+SRC+=./main.c \
+	./stm32f10x_it.c
+
+#======================================================================#
+#STM32 startup file
+STARTUP=./lib/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_cl.s
+
+
+#======================================================================#
+#Make rules
+
+#Make all
+all:$(BIN_IMAGE)
+
+$(BIN_IMAGE):$(EXECUTABLE)
+	$(OBJCOPY) -O binary $^ $@
+
+STARTUP_OBJ = startup_stm32f10x_cl.o
+
+$(STARTUP_OBJ): $(STARTUP) 
+	$(CC) $(CFLAGS) $^ -c $(STARTUP)
+
+$(EXECUTABLE):$(SRC) $(STARTUP_OBJ) uart_api.h
+	$(CC) $(CFLAGS) $^ -o $@
+
+#Make clean
 clean:
-	-rm -f *.lst *.o *.elf *.lst *.bin *.hex
-
-$(PROJ_NAME).bin: $(PROJ_NAME).elf
-	@ echo "...copying"
-	$(CC) $(CFLAGS) $^ -o $@ 
-	$(OBJCOPY) -O ihex $(PROJ_NAME).elf $(PROJ_NAME).hex
-	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
-#	$(CP) $(CPFLAGS) blinky.elf blinky.bin
-#	$(OD) $(ODFLAGS) blinky.elf > blinky.lst
-
-$(PROJ_NAME).elf: $(PROJ_NAME).o stm32f10x_it.o stm32.ld
-	@ echo "..linking"
-	$(LD) $(LFLAGS) -o $(PROJ_NAME).elf $(PROJ_NAME).o stm32f10x_it.o
-
-$(PROJ_NAME).o: $(PROJ_NAME).c $(PROJ_NAME).h uart_api.h
-	@ echo ".compiling"
-	$(CC) $(CFLAGS) $(PROJ_NAME).c uart_api.h
-
-#crt.o : $(ASMSRC)
-#	$(AS) $(AFLAGS) $(ASMSRC) -o crt.o 
-
-stm32f10x_it.o: stm32f10x_it.c stm32f10x_it.h
-	$(CC) $(CFLAGS) stm32f10x_it.c stm32f10x_it.h
-
-
-install: $(PROJ_NAME).bin
-	st-flash write $(PROJ_NAME).bin 0x8000000
+	rm -rf $(EXECUTABLE)
+	rm -rf $(BIN_IMAGE)
+#Make install
+install:
+	st-flash write $(BIN_IMAGE) 0x8000000
+openocd:
+	openocd -f "../../commom/openocd.cfg"
+gdb:
+	arm-none-eabi-gdb -x ../../commom/gdb_init.gdb
+gdbtui:
+	arm-none-eabi-gdb -tui -x ../../commom/gdb_init.gdb
+#======================================================================
+.PHONY:all clean flash

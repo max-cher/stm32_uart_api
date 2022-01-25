@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    Project/STM32F10x_StdPeriph_Template/stm32f10x_it.h 
+  * @file    Project/STM32F10x_StdPeriph_Template/stm32f10x_it.h
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    08-April-2011
@@ -17,15 +17,15 @@
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F10x_IT_H
 #define __STM32F10x_IT_H
 
 #ifdef __cplusplus
- extern "C" {
-#endif 
+extern "C" {
+#endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x.h"
@@ -44,9 +44,6 @@ void SVC_Handler(void);
 void DebugMon_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
-
-void USART1_IRQHandler(void);
-void USART2_IRQHandler(void);
 
 #ifdef __cplusplus
 }
