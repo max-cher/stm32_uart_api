@@ -1,6 +1,7 @@
 #include "stm32f10x.h"
 #include "main.h"
 #include "uart_api.h"
+#include "stm32f10x_it.h"
 
 
 
@@ -15,18 +16,25 @@ int main(void) {
         
     init_uart(USART1);
     init_uart(USART2);
+    set_uart_baud_rate(USART1, 9600);
+    set_uart_baud_rate(USART2, 115200);
     
-    char buf[] = "Hello\n\r";
-
+    uart_interrupt_enable(USART1);
+    uart_interrupt_enable(USART2);
+    
+    
     while(1) {
         GPIOC->ODR = 0x00000100;
-        ms_delay(100);
+        ms_delay(50);
         GPIOC->ODR = 0x00000200;
-        ms_delay(100);
+        ms_delay(50);
         
-        uart_send_array(USART1, buf, 7);
+        //uart_send_array(USART1, buf, 7);
         
-        uart_send_array(USART2, "World\n\r", 7);
+        //uart_send_array(USART2, "World\n\r", 7);
+        
+        //byte = uart_receive_byte(USART1);
+        //uart_send_byte(USART2, byte);
         
     }
 }

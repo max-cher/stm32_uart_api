@@ -74,6 +74,32 @@ void uart_send_array(USART_TypeDef * uart, u8 *data, u8 num_of) {
     return;
 }
 
+void uart_send_byte(USART_TypeDef * uart, char data) {
+    while ((uart->SR & USART_SR_TXE) == 0) {}
+    uart->DR = data;
+    return;
+}
+
+char uart_receive_byte(USART_TypeDef * uart) {
+    char data;
+    while ((uart->SR & USART_SR_RXNE) == 0) {}
+    data = uart->DR;
+    return data;
+}
+
+void uart_interrupt_enable(USART_TypeDef * uart) {
+    uart->CR1 |= USART_CR1_RXNEIE;
+    //uart->CR1 |= USART_CR1_TXEIE;
+    
+    if(uart == USART1) { 
+        NVIC_EnableIRQ (USART1_IRQn);
+    } else if(uart == USART2) {
+        NVIC_EnableIRQ (USART2_IRQn);
+    } else if(uart == USART2) {
+        NVIC_EnableIRQ (USART3_IRQn);
+    }
+    return;
+}
 
 // 1. Initialization of the module;
 void init_uart(USART_TypeDef * uart) {
