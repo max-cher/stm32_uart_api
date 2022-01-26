@@ -8,6 +8,8 @@ int main(void);
 
 //	Four vectors - the starting stack pointer value, code entry point and NMI and Hard-Fault handlers
 
+#define BLOCK_SIZE 128
+
 unsigned int * myvectors[4] 
 __attribute__ ((section("vectors")))= {
     (unsigned int *)	STACK_TOP,         

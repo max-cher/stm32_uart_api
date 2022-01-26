@@ -15,7 +15,6 @@ enum stop_bit{
 };
 
 
-
 // 2. Setting the baud rate;
 void set_uart_baud_rate(USART_TypeDef * uart, u32 baudrate) {
     if(uart == USART1) {    // PCLK2 max 72 MHz
