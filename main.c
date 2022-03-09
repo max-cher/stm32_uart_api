@@ -1,6 +1,6 @@
 #include "stm32f10x.h"
 #include "main.h"
-#include "uart_api.h"
+#include "uart_api/uart_api.h"
 #include "stm32f10x_it.h"
 
 
@@ -46,11 +46,11 @@ int main(void) {
     init_uart(USART1);
     init_uart(USART2);
     set_uart_baud_rate(USART1, 9600);
-    set_uart_baud_rate(USART2, 115200);
+    set_uart_baud_rate(USART2, 38400);
     
-    //uart_set_callback_rx(USART1, uart2_send_byte);
-    //uart_set_callback_rx(USART2, uart1_send_byte);
-    uart_set_callback_rx(USART1, rx_handler);
+    uart_set_callback_rx(USART1, uart1_send_byte);
+    uart_set_callback_rx(USART2, uart2_send_byte);
+    //uart_set_callback_rx(USART1, rx_handler);
     
     // ring buffer
     block_t b0;

@@ -33,6 +33,7 @@ CFLAGS+=-I./lib/CMSIS/CM3/CoreSupport
 #StdPeriph includes
 CFLAGS+=-I$(ST_LIB)/inc
 CFLAGS+=-I./lib/CMSIS/CM3/DeviceSupport/ST/STM32F10x/
+CFLAGS+=-I./uart_api/
 #======================================================================#
 #setup system clock
 SRC=./system_stm32f10x.c
@@ -41,10 +42,12 @@ SRC+=$(ST_LIB)/src/misc.c \
 	$(ST_LIB)/src/stm32f10x_rcc.c \
 	$(ST_LIB)/src/stm32f10x_gpio.c \
 	$(ST_LIB)/src/stm32f10x_usart.c 
+	
 
 #Major programs
 SRC+=./main.c \
-	./stm32f10x_it.c
+	./stm32f10x_it.c \
+	./uart_api/uart_api.c
 
 #======================================================================#
 #STM32 startup file
@@ -65,7 +68,7 @@ STARTUP_OBJ = startup_stm32f10x_cl.o
 $(STARTUP_OBJ): $(STARTUP) 
 	$(CC) $(CFLAGS) $^ -c $(STARTUP)
 
-$(EXECUTABLE):$(SRC) $(STARTUP_OBJ) uart_api.h
+$(EXECUTABLE):$(SRC) $(STARTUP_OBJ)
 	$(CC) $(CFLAGS) $^ -o $@
 
 #Make clean
