@@ -1,4 +1,3 @@
-
 #include "uart_api.h"
 
 
@@ -178,7 +177,6 @@ void init_uart(USART_TypeDef * uart) {
 }
 
 
-
 void (*handle_byte_uart1_rx)(char byte);
 void (*handle_byte_uart2_rx)(char byte);
 void (*handle_byte_uart3_rx)(char byte);
@@ -186,7 +184,6 @@ void (*handle_byte_uart3_rx)(char byte);
 void (*handle_byte_uart1_tx)(void);
 void (*handle_byte_uart2_tx)(void);
 void (*handle_byte_uart3_tx)(void);
-
 
 
 void uart_set_callback_rx(USART_TypeDef * uart, void(uart_byte_handler)(char byte)) {
@@ -200,7 +197,6 @@ void uart_set_callback_rx(USART_TypeDef * uart, void(uart_byte_handler)(char byt
     uart_rx_interrupt_enable(uart);
     return;
 }
-
 
 
 void uart_set_callback_tx(USART_TypeDef * uart, void(uart_byte_handler)(void)) {

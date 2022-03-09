@@ -76,7 +76,7 @@ clean:
 	rm -rf $(EXECUTABLE)
 	rm -rf $(BIN_IMAGE)
 #Make install
-install:
+flash:
 	st-flash write $(BIN_IMAGE) 0x8000000
 openocd:
 	openocd -f "../../commom/openocd.cfg"
