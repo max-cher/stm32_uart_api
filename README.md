@@ -28,9 +28,9 @@ Default settings:
  * rx and tx interrupts disabled
 
   
-## Baudrate  
+### BaudRate  
 
-To set baudrate:
+To set BaudRate:
 ```c
 set_uart_baud_rate(USARTx, baudrate);
 ```
@@ -39,9 +39,33 @@ example:
 set_uart_baud_rate(USART1, 9600);
 ```
 
+### Parity
 
+To set Parity Bit:
+```c
+set_uart_parity(USARTx, parity);
+```
+example:
+```c
+set_uart_parity(USART1, 0);
+```
 
+### Stop Bit
 
+To set Stop Bit:
+```c
+set_uart_stop(USARTx, stop_bit);
+```
+where stop_bit:
+ * s05 - 0.5 bit,
+ * s10 - 1 bit,
+ * s15 - 1.5 bit,
+ * s20 - 2 bits
+
+example:
+```c
+set_uart_stop(USART1, s10);
+```
 
 
 
